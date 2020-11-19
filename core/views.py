@@ -10,7 +10,7 @@ import requests
 
 from ProstoToolsDashboard.config import Config
 from ProstoToolsDashboard.core.utils import Utils
-from ProstoToolsDashboard.app import jinja
+from ProstoToolsDashboard import jinja, app
 from sanic import Blueprint
 from sanic.exceptions import NotFound, ServerError
 from sanic import response
@@ -20,10 +20,8 @@ conn = mysql.connector.connect(
 	user="root", passwd=os.environ["DB_PASSWORD"], host="localhost", db="data"
 )
 cursor = conn.cursor(buffered=True)
-bp = Blueprint("views", url_prefix="/")
 
-
-@bp.route("/")
+@app.route("/")
 async def index(request):
 	cursor.execute(
 		"""SELECT count FROM bot_stats WHERE entity = 'all commands'"""
@@ -51,7 +49,7 @@ async def index(request):
 		)
 
 
-@bp.route("/servers")
+@app.route("/servers")
 async def servers(request):
 	code = request.args.get("code")  # Get code from url
 	access_token = Utils().get_access_token(code)  # Get an user access token
@@ -180,7 +178,7 @@ async def servers(request):
 	)
 
 
-@bp.route("/dashboard/<int:guild_id>", methods=["POST", "GET"])
+@app.route("/dashboard/<int:guild_id>", methods=["POST", "GET"])
 async def dashboard(request, guild_id):
 
 	# Check if user is logging
@@ -294,7 +292,7 @@ async def dashboard(request, guild_id):
 	)
 
 
-@bp.route("/dashboard/<int:guild_id>/moderation")
+@app.route("/dashboard/<int:guild_id>/moderation")
 async def dashboard_moderation(request, guild_id):
 
 	# Check if user is logging
@@ -321,7 +319,7 @@ async def dashboard_moderation(request, guild_id):
 	)
 
 
-@bp.route("/dashboard/<int:guild_id>/economy")
+@app.route("/dashboard/<int:guild_id>/economy")
 async def dashboard_economy(request, guild_id):
 
 	# Check if user is logging
@@ -348,7 +346,7 @@ async def dashboard_economy(request, guild_id):
 	)
 
 
-@bp.route("/dashboard/<int:guild_id>/levels")
+@app.route("/dashboard/<int:guild_id>/levels")
 async def dashboard_levels(request, guild_id):
 
 	# Check if user is logging
@@ -375,7 +373,7 @@ async def dashboard_levels(request, guild_id):
 	)
 
 
-@bp.route("/dashboard/<int:guild_id>/welcome")
+@app.route("/dashboard/<int:guild_id>/welcome")
 async def dashboard_welcome(request, guild_id):
 
 	# Check if user is logging
@@ -402,7 +400,7 @@ async def dashboard_welcome(request, guild_id):
 	)
 
 
-@bp.route("/dashboard/<int:guild_id>/utils")
+@app.route("/dashboard/<int:guild_id>/utils")
 async def dashboard_utils(request, guild_id):
 
 	# Check if user is logging
@@ -429,7 +427,7 @@ async def dashboard_utils(request, guild_id):
 	)
 
 
-@bp.route("/commands")
+@app.route("/commands")
 async def commands(request):
 	try:
 		return jinja.render(
@@ -447,7 +445,7 @@ async def commands(request):
 		)
 
 
-@bp.route("/profile")
+@app.route("/profile")
 async def profile(request):
 
 	# Check if user is logging
@@ -488,7 +486,7 @@ async def profile(request):
 	)
 
 
-@bp.route("/stats")
+@app.route("/stats")
 async def stats(request):
 	channels = len(
 		[str(channel.id) for guild in client.guilds for channel in guild.channels]
@@ -513,7 +511,7 @@ async def stats(request):
 		)
 
 
-@bp.route("/transactions")
+@app.route("/transactions")
 async def transactions(request):
 
 	# Check if user is logging
@@ -559,7 +557,7 @@ async def transactions(request):
 	)
 
 
-@bp.route("/leaderboard")
+@app.route("/leaderboard")
 async def leaderboard(request):
 	cursor.execute(
 		"""SELECT money, reputation, exp, level, coins, user_id FROM users ORDER BY exp DESC LIMIT 100"""
@@ -606,7 +604,7 @@ async def leaderboard(request):
 		)
 
 
-@bp.route("/logout")
+@app.route("/logout")
 async def logout(request):
 	"""Logout function"""
 
@@ -620,12 +618,12 @@ async def logout(request):
 	return response.redirect("/")
 
 
-@bp.route("/test")
+@app.route("/test")
 async def test(request):
 	return response.json({"message": "message"})
 
 
-@bp.exception(NotFound)
+@app.exception(NotFound)
 async def not_found_error(request, exception):
 	"""Catch the 404 code error
 	And return html page
@@ -645,7 +643,7 @@ async def not_found_error(request, exception):
 		return jinja.render("error_404.html", request, url=Utils().DISCORD_LOGIN_URI)
 
 
-@bp.exception(ServerError)
+@app.exception(ServerError)
 async def internal_error(request, exception):
 	"""Catch the 500 code error
 	And return html page
