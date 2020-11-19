@@ -19,7 +19,7 @@ class Utils:
 		self.DISCORD_API_URI = 'https://discord.com/api/v6'
 		self.CLIENT_TOKEN = os.environ['BOT_TOKEN']
 
-	def get_access_token(self, code):
+	def get_access_token(self, code:str) -> str:
 		"""Return the access token of user
 		Requires code
 
@@ -43,7 +43,7 @@ class Utils:
 		return json.get('access_token')
 
 	
-	def get_user_data(self, access_token):
+	def get_user_data(self, access_token:str) -> list:
 		"""Return an user data and user guilds
 		Requires user access token 
 
@@ -62,7 +62,7 @@ class Utils:
 		return [user_json, user_guilds]
 
 	
-	def get_guild_channel_roles(self, guild_id):
+	def get_guild_channel_roles(self, guild_id:int) -> list:
 		"""Return a guild channels and roles
 		Requires guild id
 
@@ -84,7 +84,7 @@ class Utils:
 		return [guild_channels, guild_roles]
 
 
-	def get_db_guild_data(self, guild_id):
+	def get_db_guild_data(self, guild_id:int) -> dict:
 		"""Return a guild settings from database
 		Requires a guild id
 

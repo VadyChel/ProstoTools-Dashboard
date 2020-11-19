@@ -3,7 +3,7 @@
 import mysql.connector
 import asyncio_redis
 
-from core.views import bp
+from ProstoToolsDashboard.core.views import bp
 from sanic import Sanic
 from sanic_session import Session
 from sanic_jinja2 import SanicJinja2
@@ -12,6 +12,7 @@ from sanic_jinja2 import SanicJinja2
 app = Sanic(__name__)
 app.update_config('Site.config.Config')
 app.static('/static', './static/css')
+jinja = SanicJinja2(app)
 session = Session()
 app.register_blueprint(bp)
 
