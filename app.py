@@ -9,7 +9,7 @@ from sanic_jinja2 import SanicJinja2
 
 # Initialize objects
 app = Sanic(__name__)
-app.update_config('ProstoToolsDashboard.config.Config')
+# app.update_config('ProstoToolsDashboard.config.Config')
 app.static('/static', './static/css')
 jinja = SanicJinja2(app)
 session = Session()

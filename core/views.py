@@ -8,8 +8,8 @@ import socket
 import mysql.connector
 import requests
 
-from ProstoToolsDashboard.config import Config
-from ProstoToolsDashboard.core.utils import Utils
+from ProstoToolsDashboard import Config
+from ProstoToolsDashboard import Utils
 from ProstoToolsDashboard import jinja, app
 from sanic import Blueprint
 from sanic.exceptions import NotFound, ServerError
