@@ -2,8 +2,11 @@ import os
 
 class Config:
 	# Sanic config
-	SECRET_KEY = os.environ.get('SECRET_KEY')
-	DEBUG = False
+	DEBUG = True
+
+	# Jinja config
+	TEMPLATES_PACKAGE = "core"
+	TEMPLATES_FOLDER = "templates"
 
 	# Db config
 	DB_PASSWORD = os.environ.get('DB_PASSWORD') or '9fr8-PkM;M4+'
