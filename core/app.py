@@ -10,7 +10,7 @@ from sanic_session import Session
 # Initialize objects
 app = Sanic(__name__)
 app.update_config(Config)
-app.static('/static', './static')
+app.static('/static', './core/static')
 app.blueprint(dashboard)
 app.blueprint(exceptions)
 app.blueprint(views)
