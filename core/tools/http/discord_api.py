@@ -29,7 +29,7 @@ class DiscordAPI:
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         access_token = await requests.post(
-            url=self.DISCORD_TOKEN_URI, json=payload, headers=headers
+            url=self.DISCORD_TOKEN_URI, data=payload, headers=headers
         )  # Get a data from discord API
         json = await access_token.json()
 

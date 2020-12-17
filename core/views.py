@@ -6,10 +6,10 @@ from .configs import Config
 from .tools import ReceiveData, Jinja, Utils, Database, DiscordAPI
 from sanic import response, Blueprint
 
-# conn = mysql.connector.connect(
-# 	user="root", passwd=Config.DB_PASSWORD, host="localhost", db="data"
-# )
-# cursor = conn.cursor(buffered=True)
+conn = mysql.connector.connect(
+	user=Config.DB_USER, passwd=Config.DB_PASSWORD, host=Config.DB_HOST, db=Config.DB_DATABASE
+)
+cursor = conn.cursor(buffered=True)
 bp = Blueprint('main_routes')
 jinja = Jinja()
 get_api_data = ReceiveData().get_data
@@ -21,10 +21,10 @@ utils = Utils()
 @bp.route("/")
 async def index(request):
 	# client = await get_api_data()
-	# cursor.execute(
-	# 	"""SELECT count FROM bot_stats WHERE entity = 'all commands'"""
-	# )  # Database query
-	# amout_used_commands = cursor.fetchall()[::-1][0]
+	cursor.execute(
+		"""SELECT count FROM bot_stats WHERE entity = 'all commands'"""
+	)  # Database query
+	amout_used_commands = cursor.fetchall()[::-1][0]
 
 	try:
 		return jinja.render(
@@ -34,14 +34,14 @@ async def index(request):
 			avatar=request.cookies.get("user_avatar"),
 			login=request.cookies.get("user_state_login"),
 			user_name=request.cookies.get("user_name"),
-			bot_stats=[len(client.guilds), len(client.users), 1],
+			bot_stats=[len(client.guilds), len(client.users), amout_used_commands],
 		)
 	except:
 		return jinja.render(
 			"index.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
-			bot_stats=[0, 0, 1],
+			bot_stats=[0, 0, amout_used_commands],
 		)
 
 
