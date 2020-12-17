@@ -1,64 +1,64 @@
 # Imports
-import datetime
 import json
-import asyncio
-import os
-
 import mysql.connector
 
-from .tools import Jinja, Utils
+from .configs import Config
+from .tools import ReceiveData, Jinja, Utils, Database, DiscordAPI
 from sanic import response, Blueprint
 
-conn = mysql.connector.connect(
-	user="root", passwd=os.environ["DB_PASSWORD"], host="localhost", db="data"
-)
-cursor = conn.cursor(buffered=True)
+# conn = mysql.connector.connect(
+# 	user="root", passwd=Config.DB_PASSWORD, host="localhost", db="data"
+# )
+# cursor = conn.cursor(buffered=True)
 bp = Blueprint('main_routes')
 jinja = Jinja()
+get_api_data = ReceiveData().get_data
+discord_api = DiscordAPI()
+database = Database()
+utils = Utils()
 
 
 @bp.route("/")
 async def index(request):
-	cursor.execute(
-		"""SELECT count FROM bot_stats WHERE entity = 'all commands'"""
-	)  # Database query
-	amout_used_commands = cursor.fetchall()
-	amout_used_commands.reverse()
-	amout_used_commands = amout_used_commands[0]  # Get the biggest value
+	# client = await get_api_data()
+	# cursor.execute(
+	# 	"""SELECT count FROM bot_stats WHERE entity = 'all commands'"""
+	# )  # Database query
+	# amout_used_commands = cursor.fetchall()[::-1][0]
 
 	try:
 		return jinja.render(
 			"index.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
-			avatar=request.ctx.session["user_avatar"],
-			login=request.ctx.session["user_state_login"],
-			user_name=request.ctx.session["user_name"],
-			bot_stats=[0, 0, amout_used_commands],
+			url=Config.DISCORD_LOGIN_URI,
+			avatar=request.cookies.get("user_avatar"),
+			login=request.cookies.get("user_state_login"),
+			user_name=request.cookies.get("user_name"),
+			bot_stats=[len(client.guilds), len(client.users), 1],
 		)
 	except:
 		return jinja.render(
 			"index.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
-			bot_stats=[0, 0, amout_used_commands],
+			url=Config.DISCORD_LOGIN_URI,
+			bot_stats=[0, 0, 1],
 		)
 
 
 @bp.route("/servers")
 async def servers(request):
 	code = request.args.get("code")  # Get code from url
-	access_token = Utils().get_access_token(code)  # Get an user access token
+	access_token = await discord_api.get_access_token(code)  # Get an user access token
 
 	if code:  # If code is not None, it redirects to the servers page
 
 		# Work with session
-		request.ctx.session["access_token"] = access_token
-		request.ctx.session["user_state_login"] = True
+		await utils.set_cookie(request, "access_token", access_token)
+		await utils.set_cookie(request, "user_state_login", access_token)
 		return response.redirect("/servers")
 
-	access_token = request.ctx.session["access_token"]
-	user_datas = Utils().get_user_data(access_token)
+	access_token = request.cookies.get("access_token")
+	user_datas = await discord_api.get_user_data(access_token)
 
 	# If length of username the biggest than 16, it is shorting the username and it is unating a username and disciminator
 	if len(user_datas[0]["username"]) > 16:
@@ -87,13 +87,13 @@ async def servers(request):
 		user_avatar = "https://cdn.discordapp.com/attachments/717783820308316272/743448353672790136/1.png"
 
 	# Write the user data to session
-	request.ctx.session["user_name"] = user_name
-	request.ctx.session["user_avatar"] = user_avatar
+	await utils.set_cookie(request, "user_name", user_name)
+	await utils.set_cookie(request, "user_avatar", user_avatar)
 
 	datas = []
 	session_guild_datas = {}
 	guilds = [
-		str(guild.id) for guild in client.guilds
+		str(guild) for guild in client.guilds
 	]  # Get the id client guilds in format string
 
 	try:
@@ -157,20 +157,20 @@ async def servers(request):
 	except:
 		pass
 
-	if "user_guilds" in request.ctx.session:
-		if request.ctx.session["user_guilds"] != session_guild_datas:
-			request.ctx.session["user_guilds"] = session_guild_datas
+	if "user_guilds" in request.cookies.keys():
+		if request.cookies.get("user_guilds") != session_guild_datas:
+			await utils.set_cookie(request, "user_guilds", session_guild_datas)
 	else:
-		request.ctx.session["user_guilds"] = session_guild_datas
+		await utils.set_cookie(request, "user_guilds", session_guild_datas)
 
 	return jinja.render(
 		"servers.html",
 		request,
-		url=Utils().DISCORD_LOGIN_URI,
+		url=Config.DISCORD_LOGIN_URI,
 		datas=datas,
-		avatar=request.ctx.session["user_avatar"],
-		login=request.ctx.session["user_state_login"],
-		user_name=request.ctx.session["user_name"],
+		avatar=request.cookies.get("user_avatar"),
+		login=request.cookies.get("user_state_login"),
+		user_name=request.cookies.get("user_name"),
 	)
 
 
@@ -180,15 +180,15 @@ async def commands(request):
 		return jinja.render(
 			"commands.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
-			avatar=request.ctx.session["user_avatar"],
-			login=request.ctx.session["user_state_login"],
-			user_name=request.ctx.session["user_name"],
+			url=Config.DISCORD_LOGIN_URI,
+			avatar=request.cookies.get("user_avatar"),
+			login=request.cookies.get("user_state_login"),
+			user_name=request.cookies.get("user_name"),
 			client=client,
 		)
 	except:
 		return jinja.render(
-			"commands.html", request, url=Utils().DISCORD_LOGIN_URI, client=client
+			"commands.html", request, url=Config.DISCORD_LOGIN_URI, client=client
 		)
 
 
@@ -196,13 +196,13 @@ async def commands(request):
 async def profile(request):
 
 	# Check if user is logging
-	if not request.ctx.session["user_state_login"]:
-		return response.redirect(Utils().DISCORD_LOGIN_URI)
+	if not request.cookies.get("user_state_login"):
+		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	access_token = request.ctx.session[
+	access_token = request.cookies.get(
 		"access_token"
-	]  # Get the user access token form request.ctx.session
-	user_datas = Utils().get_user_data(access_token)
+	)  # Get the user access token form request.ctx.session
+	user_datas = await discord_api.get_user_data(access_token)
 
 	sql_1 = """SELECT money FROM users WHERE user_id = %s AND user_id = %s"""
 	val_1 = (user_datas[0]["id"], user_datas[0]["id"])
@@ -225,10 +225,10 @@ async def profile(request):
 	return jinja.render(
 		"profile.html",
 		request,
-		url=Utils().DISCORD_LOGIN_URI,
-		avatar=request.ctx.session["user_avatar"],
-		login=request.ctx.session["user_state_login"],
-		user_name=request.ctx.session["user_name"],
+		url=Config.DISCORD_LOGIN_URI,
+		avatar=request.cookies.get("user_avatar"),
+		login=request.cookies.get("user_state_login"),
+		user_name=request.cookies.get("user_name"),
 		user_data=[user_datas[0]["id"], len(user_datas[1]), money, bio],
 	)
 
@@ -243,17 +243,17 @@ async def stats(request):
 		return jinja.render(
 			"stats.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
-			avatar=request.ctx.session["user_avatar"],
-			login=request.ctx.session["user_state_login"],
-			user_name=request.ctx.session["user_name"],
+			url=Config.DISCORD_LOGIN_URI,
+			avatar=request.cookies.get("user_avatar"),
+			login=request.cookies.get("user_state_login"),
+			user_name=request.cookies.get("user_name"),
 			bot_stats=[channels, len(client.guilds), len(client.users)],
 		)
 	except:
 		return jinja.render(
 			"stats.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
+			url=Config.DISCORD_LOGIN_URI,
 			bot_stats=[channels, len(client.guilds), len(client.users)],
 		)
 
@@ -262,13 +262,13 @@ async def stats(request):
 async def transactions(request):
 
 	# Check if user is logging
-	if not request.ctx.session["user_state_login"]:
-		return response.redirect(Utils().DISCORD_LOGIN_URI)
+	if not request.cookies.get("user_state_login"):
+		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	access_token = request.ctx.session[
+	access_token = request.cookies.get(
 		"access_token"
-	]  # Get the user access token form session
-	user_datas = Utils().get_user_data(access_token)
+	)  # Get the user access token form session
+	user_datas = await discord_api.get_user_data(access_token)
 
 	sql = """SELECT transantions FROM users WHERE user_id = %s AND user_id = %s"""
 	val = (user_datas[0]["id"], user_datas[0]["id"])
@@ -296,10 +296,10 @@ async def transactions(request):
 	return jinja.render(
 		"transactions.html",
 		request,
-		url=Utils().DISCORD_LOGIN_URI,
-		avatar=request.ctx.session["user_avatar"],
-		login=request.ctx.session["user_state_login"],
-		user_name=request.ctx.session["user_name"],
+		url=Config.DISCORD_LOGIN_URI,
+		avatar=request.cookies.get("user_avatar"),
+		login=request.cookies.get("user_state_login"),
+		user_name=request.cookies.get("user_name"),
 		transactions=transactions,
 	)
 
@@ -334,10 +334,10 @@ async def leaderboard(request):
 		return jinja.render(
 			"leaderboard.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
-			avatar=request.ctx.session["user_avatar"],
-			login=request.ctx.session["user_state_login"],
-			user_name=request.ctx.session["user_name"],
+			url=Config.DISCORD_LOGIN_URI,
+			avatar=request.cookies.get("user_avatar"),
+			login=request.cookies.get("user_state_login"),
+			user_name=request.cookies.get("user_name"),
 			users_data=users,
 			users_list=users_list,
 		)
@@ -345,7 +345,7 @@ async def leaderboard(request):
 		return jinja.render(
 			"leaderboard.html",
 			request,
-			url=Utils().DISCORD_LOGIN_URI,
+			url=Config.DISCORD_LOGIN_URI,
 			users_data=users,
 			users_list=users_list,
 		)
@@ -356,10 +356,10 @@ async def logout(request):
 	"""Logout function"""
 
 	# Work with session
-	request.ctx.session["access_token"] = None
-	request.ctx.session["user_state_login"] = False
-	request.ctx.session["user_name"] = None
-	request.ctx.session["user_avatar"] = None
-	request.ctx.session["user_guilds"] = None
+	del request.cookies["access_token"]
+	del request.cookies["user_state_login"]
+	del request.cookies["user_name"]
+	del request.cookies["user_avatar"]
+	del request.cookies["user_guilds"]
 
 	return response.redirect("/")

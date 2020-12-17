@@ -9,7 +9,17 @@ class Config:
 	TEMPLATES_FOLDER = "templates"
 
 	# Db config
-	DB_PASSWORD = os.environ.get('DB_PASSWORD') or '9fr8-PkM;M4+'
-	HOST = os.environ.get('DB_HOST') or 'localhost'
-	USER = os.environ.get('DB_USER') or 'root'
-	DATABASE = os.environ.get('DB_DATABASE') or 'data'
+	DB_PASSWORD = os.getenv('DB_PASSWORD')
+	HOST = os.getenv('DB_HOST')
+	USER = os.getenv('DB_USER')
+	DATABASE = os.getenv('DB_DATABASE')
+
+	# Client config
+	CLIENT_ID = "700767394154414142"
+	CLIENT_SECRET = "DsxERoWInGaqcX1CoJQu3QfNX7pak-Yd"
+	SCOPE = "identify%20guilds"
+	REDIRECT_URI = "http://127.0.0.1:5000/servers"
+	DISCORD_LOGIN_URI = f"https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code&scope={SCOPE}"
+	DISCORD_TOKEN_URI = "https://discord.com/api/v6/oauth2/token"
+	DISCORD_API_URI = "https://discord.com/api/v6"
+	CLIENT_TOKEN = os.getenv("BOT_TOKEN")

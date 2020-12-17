@@ -2,7 +2,6 @@ import os
 
 import core.app
 from core.configs.config import Config
-from sanic import Sanic
 from sanic.response import html
 from jinja2 import Environment, PackageLoader
 
