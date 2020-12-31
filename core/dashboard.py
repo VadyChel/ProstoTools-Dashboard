@@ -25,7 +25,6 @@ async def dashboard(request, guild_id):
 	new_idea_channel = 0
 
 	if request.method == "POST":
-
 		# Check if prefix is incorect introduced
 		if len(request.form["new_prefix"]) < 1:
 			return jinja.render(
@@ -43,7 +42,7 @@ async def dashboard(request, guild_id):
 				category="global",
 				alert=["danger", "Укажите префикс"],
 			)
-		elif len(request.form["new_prefix"]) > 3:
+		elif len(request.form["new_prefix"][0]) > 3:
 			return jinja.render(
 				"dashboard.html",
 				request,
@@ -60,15 +59,13 @@ async def dashboard(request, guild_id):
 				alert=["danger", "Префикс должен быть меньше 4 символов"],
 			)
 		else:
-			new_prefix = request.form["new_prefix"]
+			new_prefix = request.form["new_prefix"][0]
 
 		# Purge commands setting
-		if request.form["clear_commands"] == "\xa0Выключена":
+		if request.form["clear_commands"][0] == "\xa0Выключена":
 			new_purge = 0
-		elif request.form["clear_commands"] == "\xa0Включена":
+		elif request.form["clear_commands"][0] == "\xa0Включена":
 			new_purge = 1
-		else:
-			return response.json(request.form["clear_commands"])
 
 		# Idea channel setting
 		if "idea_channel" in request.form:
@@ -108,9 +105,7 @@ async def dashboard(request, guild_id):
 			json.dumps(list(react_channels)),
 			int(guild_id),
 		)
-
-		cursor.execute(sql, val)  # Database query
-		conn.commit()
+		await Database.execute(sql, val)
 
 	guild_data = await Database.get_db_guild_data(guild_id)
 	return jinja.render(

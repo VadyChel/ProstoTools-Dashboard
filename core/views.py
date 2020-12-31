@@ -299,7 +299,7 @@ async def leaderboard(request):
 	users = {}
 
 	for user in data:
-		if client.get_user(int(user[5])) is not None:
+		if await client.get_user(int(user[5])) is not None:
 			users.update(
 				{
 					user[5]: {
@@ -308,7 +308,7 @@ async def leaderboard(request):
 						"money": user[0],
 						"lvl": user[3],
 						"coins": user[4],
-						"avatar": await client.get_user(int(user[5])).avatar_url,
+						"avatar": (await client.get_user(int(user[5]))).avatar_url,
 						"user": str(await client.get_user(int(user[5]))),
 					}
 				}
