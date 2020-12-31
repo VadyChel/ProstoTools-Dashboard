@@ -20,6 +20,6 @@ class Config:
 	SCOPE = "identify%20guilds"
 	REDIRECT_URI = "http://127.0.0.1:5000/servers"
 	DISCORD_LOGIN_URI = f"https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code&scope={SCOPE}"
-	DISCORD_TOKEN_URI = "https://discord.com/api/v8/oauth2/token"
-	DISCORD_API_URI = "https://discord.com/api/v8"
+	DISCORD_TOKEN_URI = "https://discord.com/api/v7/oauth2/token"
+	DISCORD_API_URI = "https://discord.com/api/v7"
 	CLIENT_TOKEN = os.getenv("BOT_TOKEN")

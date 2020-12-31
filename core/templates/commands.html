@@ -10,25 +10,25 @@
 {% block body %}
 <div class="container d-flex justify-content-center flex-column align-items-center">
     <div class="wrap c-wrap d-flex justify-content-center">
-        {% for cog_name in client.cogs %}
-            {% if cog_name not in ['Help', 'Loops', 'Events', 'Owner', 'Errors'] %}
-                {% for command in client.get_cog(cog_name).get_commands() %}
-                    <div class="command_body">
-                        <div class="d-flex justify-content-center flex-column align-items-start">
-                            <span class="command_name">
-                                {% if cog_name == "Moderate" %}<i class="fas fa-hammer"></i>{% endif %}
-                                {% if cog_name == "Different" %}<i class="fas fa-globe"></i>{% endif %}
-                                {% if cog_name == "Economy" %}<i class="fas fa-money-bill-wave"></i>{% endif %}
-                                {% if cog_name == "Utils" %}<i class="fas fa-tools"></i>{% endif %}
-                                {% if cog_name == "Work" %}<i class="fas fa-clipboard-list"></i>{% endif %}
-                                {% if cog_name == "Games" %}<i class="fas fa-gamepad"></i>{% endif %}
-                                *{{ command.name }}</span>
-                            <span class="command_desc">{{ command.description[2:-2] }}</span>
-                            <span class="command_usage">*{{ command.usage }}</span>    
-                        </div>
+        {% for cog in client.commands.keys() %}
+            {% for command in client.commands[cog] %}
+                <div class="command_body">
+                    <div class="d-flex justify-content-center flex-column align-items-start">
+                        <span class="command_name">
+                            {% if cog == "Moderate" %}<i class="fas fa-hammer"></i>{% endif %}
+                            {% if cog == "Different" %}<i class="fas fa-globe"></i>{% endif %}
+                            {% if cog == "Economy" %}<i class="fas fa-money-bill-wave"></i>{% endif %}
+                            {% if cog == "Utils" %}<i class="fas fa-tools"></i>{% endif %}
+                            {% if cog == "Work" %}<i class="fas fa-clipboard-list"></i>{% endif %}
+                            {% if cog == "FunOther" %}<i class="fas fa-gamepad"></i>{% endif %}
+                            {% if cog == "FunEditImage" %}<i class="fas fa-gamepad"></i>{% endif %}
+                            {% if cog == "FunRandomImage" %}<i class="fas fa-gamepad"></i>{% endif %}
+                            *{{ command }}</span>
+                        <span class="command_desc">{{ client.commands[cog][command]["description"][2:-2] }}</span>
+                        <span class="command_usage">*{{ client.commands[cog][command]["usage"] }}</span>
                     </div>
-                {% endfor %}
-            {% endif %}
+                </div>
+            {% endfor %}
         {% endfor %}
     </div>
 </div>

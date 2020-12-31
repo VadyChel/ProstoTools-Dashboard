@@ -1,4 +1,4 @@
-from core.tools.http import async_requests as requests
+from . import async_requests as requests
 from core.configs import Config
 
 
@@ -35,7 +35,6 @@ class DiscordAPI:
 
         return json.get("access_token")
 
-
     async def get_user_data(self, access_token: str) -> list:
         """Return an user data and user guilds
         Requires user access token
@@ -51,9 +50,7 @@ class DiscordAPI:
             url=url + "/guilds", headers=headers
         )  # Get a data from discord API
         user_guilds = await user_data_guilds.json()
-
         return [user_json, user_guilds]
-
 
     async def get_guild_channel_roles(self, guild_id: int) -> list:
         """Return a guild channels and roles
@@ -81,3 +78,33 @@ class DiscordAPI:
         guild_roles.reverse()
 
         return [guild_channels, guild_roles]
+
+    async def get_guild(self, guild_id: int):
+        """Return a guild data
+        Requires guild id
+
+        """
+
+        headers = {"Authorization": f"Bot {self.CLIENT_TOKEN}"}
+
+        guild_obj = await requests.get(
+            url=self.DISCORD_API_URI + f"/guilds/{guild_id}", headers=headers
+        )  # Get a data from discord API
+        guild = await guild_obj.json()
+        return guild
+
+    async def get_user(self, user_id: int):
+        """Return a user data
+        Requires user id
+
+        """
+
+        headers = {"Authorization": f"Bot {self.CLIENT_TOKEN}"}
+
+        user_obj = await requests.get(
+            url=self.DISCORD_API_URI + f"/user/{user_id}", headers=headers
+        )  # Get a data from discord API
+        user = await user_obj.json()
+        if user_obj.status == 404:
+            return None
+        return user

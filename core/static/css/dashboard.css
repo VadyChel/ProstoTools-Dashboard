@@ -45,7 +45,7 @@
 }
 
 .form-input{
-    font-size: 16px;
+    font-size: 22px;
     width: 90%;
     border: none;
     border-bottom: 1px solid #e0e0e0;
@@ -73,7 +73,7 @@
     top: -2px;
     left: 6.2%;
     z-index: -1;
-    font-size: 12px;
+    font-size: 14px;
     color: #ccc;
     padding-top: 5px;
 }
@@ -106,7 +106,7 @@ select {
 
 select {
     color: #444;
-    font-size: 20px;
+    font-size: 22px;
     cursor: pointer;
 }
 
@@ -146,7 +146,7 @@ select::-ms-expand {
 } 
 
 .select option{
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .select-label{
@@ -327,48 +327,39 @@ select::-ms-expand {
     background-color: #e8e8e8;
 }
 
-
-
-
-
-
-
 .if_u_need_class {
     display: none;
 }
 
-
-
-
-input[type="checkbox"] {
-    position: relative;
-    width: 80px;
-    height: 30px;
-    -webkit-appearance: none;
-    outline: none;
-    background: #636363;
-    border-radius: 20px;
-    transition: 0.2s;
-  }
-  
-  input:checked[type="checkbox"] {
-    background: #3a5070;
-  }
-  
-  input[type="checkbox"]:before {
-    content: '';
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    transform: scale(1.1);
-    border-radius: 50%;
-    top: -5px;
-    left: 0;
-    background: #d1d1d1;
-    transition: 0.2s;
-  }
-  
-  input:checked[type="checkbox"]:before {
-      background: #5386d4;
-       left: 40px;
-  }
+/*input[type="checkbox"] {*/
+/*    position: relative;*/
+/*    width: 80px;*/
+/*    height: 30px;*/
+/*    -webkit-appearance: none;*/
+/*    outline: none;*/
+/*    background: #636363;*/
+/*    border-radius: 20px;*/
+/*    transition: 0.2s;*/
+/*  }*/
+/*  */
+/*input:checked[type="checkbox"] {*/
+/*    background: #3a5070;*/
+/*}*/
+/*  */
+/*input[type="checkbox"]:before {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    width: 40px;*/
+/*    height: 40px;*/
+/*    transform: scale(1.1);*/
+/*    border-radius: 50%;*/
+/*    top: -5px;*/
+/*    left: 0;*/
+/*    background: #d1d1d1;*/
+/*    transition: 0.2s;*/
+/*}*/
+/*  */
+/*input:checked[type="checkbox"]:before {*/
+/*      background: #5386d4;*/
+/*       left: 40px;*/
+/*}*/

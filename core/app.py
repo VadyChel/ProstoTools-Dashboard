@@ -1,10 +1,11 @@
-
 # Imports
 from .configs.config import Config
 from .dashboard import bp as dashboard
 from .exceptions import bp as exceptions
 from .views import bp as views
+from .tools import Database
 from sanic import Sanic
+from sanic_session import Session, InMemorySessionInterface
 
 # Initialize objects
 app = Sanic(__name__)
@@ -13,6 +14,12 @@ app.static('/static', './core/static')
 app.blueprint(dashboard)
 app.blueprint(exceptions)
 app.blueprint(views)
+Session(app, interface=InMemorySessionInterface(secure=True))
+
+
+@app.listener("before_server_start")
+async def prepare_db(app, loop):
+	await Database.prepare()
 
 
 # Run the app
