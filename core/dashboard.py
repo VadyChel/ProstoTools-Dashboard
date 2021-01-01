@@ -61,12 +61,6 @@ async def dashboard(request, guild_id):
 		else:
 			new_prefix = request.form["new_prefix"][0]
 
-		# Purge commands setting
-		if request.form["clear_commands"][0] == "\xa0Выключена":
-			new_purge = 0
-		elif request.form["clear_commands"][0] == "\xa0Включена":
-			new_purge = 1
-
 		# Idea channel setting
 		if "idea_channel" in request.form:
 			for channel in datas_guild[0]:
@@ -91,16 +85,15 @@ async def dashboard(request, guild_id):
 		# Check if user add react channel
 		if "react_channel" in request.form:
 			for channel in datas_guild[0]:
-				if "\xa0" + channel["name"] == request.form["react_channel"]:
+				if "\xa0" + channel["name"] == request.form["react_channel"][0]:
 					react_channels = list(guild_data["react_channels"])
 					react_channels.append(int(channel["id"]))
 		else:
 			react_channels = guild_data["react_channels"]
 
-		sql = """UPDATE guilds SET prefix = %s, `purge` = %s, idea_channel = %s, react_channels = %s WHERE guild_id = %s"""
+		sql = """UPDATE guilds SET prefix = %s, idea_channel = %s, react_channels = %s WHERE guild_id = %s"""
 		val = (
 			str(new_prefix),
-			int(new_purge),
 			int(new_idea_channel),
 			json.dumps(list(react_channels)),
 			int(guild_id),

@@ -287,7 +287,7 @@ select::-ms-expand {
     background-color: #fff;
     border-radius: 5px;
     border: 1px solid #cccc;
-    margin: 1%;
+    margin: 1% 1% 1% 5%;
     transition: 0.3s;
 }
 

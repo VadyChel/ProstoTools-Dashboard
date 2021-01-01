@@ -94,16 +94,6 @@
             </div>
 
             <div class="group-form">
-                <div class="select">
-                    <span class="select-label">Очистка команд</span>    
-                    <select name='clear_commands'>
-                        <option {% if guild_data[1]["purge"] == 1 %} selected {% endif %}>&nbsp;Включена</option>
-                        <option {% if guild_data[1]["purge"] == 0 %} selected {% endif %}>&nbsp;Выключена</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="group-form">
                 <div class="multi-select">
                     <span class="multi-select-label">Каналы для авто-реакций</span>
                     <select name='react_channel'>

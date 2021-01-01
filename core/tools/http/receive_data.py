@@ -8,5 +8,5 @@ class ReceiveData:
         self.url = "http://api.prosto-tools.ml/api/"
 
     async def get_data(self):
-        data = await requests.get(url=self.url + "private/client", headers={"Authorization": os.getenv("BOT_TOKEN")})
+        data = await requests.get(url=self.url + "private/client", headers={"Authorization": os.getenv("MAIN_BOT_TOKEN")})
         return Client(await data.json())
