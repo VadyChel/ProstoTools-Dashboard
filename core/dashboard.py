@@ -1,12 +1,13 @@
 import json
 
 from .configs import Config
-from .tools import Jinja, ReceiveData, DiscordAPI, Database
+from .tools import Jinja, ReceiveData, DiscordAPI, Database, Utils
 from sanic import response, Blueprint
 
 
 bp = Blueprint('dashboard')
 jinja = Jinja()
+utils = Utils()
 get_api_data = ReceiveData().get_data
 discord_api = DiscordAPI()
 
@@ -61,6 +62,72 @@ async def dashboard(request, guild_id):
 		else:
 			new_prefix = request.form["new_prefix"][0]
 
+		stats_dict = {
+			'\xa0Все': 'all',
+			'\xa0Боты': 'bots',
+			'\xa0Участники': 'members',
+			'\xa0Каналы': 'channels',
+			'\xa0Роли': 'roles',
+			"\xa0Сообщения": "message"
+		}
+
+		if 'server_stats_remove' in request.form:
+			for item in request.form.getlist("server_stats_remove"):
+				server_stats = guild_data['server_stats']
+				try:
+					deleted_channel = server_stats.pop(stats_dict["\xa0"+item])
+					await discord_api.del_channel(deleted_channel)
+				except:
+					pass
+		else:
+			server_stats = guild_data['server_stats']
+
+		if 'server_stats' in request.form:
+			if stats_dict[request.form['server_stats'][0]] == "message":
+				return
+			category_id = None
+			for channel in datas_guild[0]:
+				if channel["name"] == "Статистика" and channel["type"] == 4:
+					category_id = channel["id"]
+					break
+
+			if category_id is None:
+				resp = await discord_api.create_guild_channel(
+					guild_id, name="Статистика", type=4, position=0
+				)
+				if resp.status == 403:
+					return utils.dashboard_403_response(
+						request, jinja, "global",
+						[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild]
+					)
+				category_id = (await resp.json())["id"]
+
+			everyone_role_id = [role["id"] for role in datas_guild[1] if role["name"] == "@everyone"][0]
+			resp = await discord_api.create_guild_channel(
+				guild_id,
+				name=request.form['server_stats'][0].replace("\xa0", ""),
+				parent_id=category_id,
+				type=2,
+				permission_overwrites=[{
+					"id": everyone_role_id,
+					"type": 0,
+					"deny": 0x00100000,
+					"allow": None
+				}]
+			)
+
+			if resp.status == 403:
+				return utils.dashboard_403_response(
+					request, jinja, "global",
+					[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild]
+				)
+
+			channel_id = int((await resp.json())["id"])
+			server_stats = guild_data['server_stats']
+			server_stats.update({stats_dict[request.form['server_stats'][0]]: channel_id})
+		else:
+			server_stats = guild_data['server_stats']
+
 		# Idea channel setting
 		if "idea_channel" in request.form:
 			for channel in datas_guild[0]:
@@ -91,11 +158,12 @@ async def dashboard(request, guild_id):
 		else:
 			react_channels = guild_data["react_channels"]
 
-		sql = """UPDATE guilds SET prefix = %s, idea_channel = %s, react_channels = %s WHERE guild_id = %s"""
+		sql = """UPDATE guilds SET prefix = %s, idea_channel = %s, react_channels = %s, server_stats = %s WHERE guild_id = %s"""
 		val = (
 			str(new_prefix),
 			int(new_idea_channel),
 			json.dumps(list(react_channels)),
+			json.dumps(server_stats),
 			int(guild_id),
 		)
 		await Database.execute(sql, val)

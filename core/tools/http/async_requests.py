@@ -13,3 +13,10 @@ async def post(url, **kwargs):
         async with session.post(url=url, **kwargs) as response:
             await response.read()
             return response
+
+
+async def delete(url, **kwargs):
+    async with aiohttp.ClientSession() as session:
+        async with session.delete(url=url, **kwargs) as response:
+            await response.read()
+            return response

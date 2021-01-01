@@ -108,3 +108,61 @@ class DiscordAPI:
         if user_obj.status == 404:
             return None
         return user
+
+    async def create_guild_channel(self, guild_id: int, **kwargs):
+        """Create a guild channel
+        Requires guild id and channel name
+
+        """
+        headers = {
+            "Authorization": f"Bot {self.CLIENT_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        response = await requests.post(
+            url=self.DISCORD_API_URI+f"/guilds/{guild_id}/channels", json=kwargs, headers=headers
+        )
+        return response
+
+    async def get_channel(self, channel_id: int):
+        """Return a guild channel
+        Requires channel id
+
+        """
+        headers = {"Authorization": f"Bot {self.CLIENT_TOKEN}"}
+
+        channel_obj = await requests.get(
+            url=self.DISCORD_API_URI+f"/channels/{channel_id}", headers=headers
+        )
+        channel = await channel_obj.json()
+        return channel
+
+    async def del_channel(self, channel_id: int):
+        """Delete a guild channel
+        Requires channel id
+
+        """
+        headers = {
+            "Authorization": f"Bot {self.CLIENT_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        response = await requests.delete(
+            url=self.DISCORD_API_URI+f"/channels/{channel_id}", headers=headers
+        )
+        return response
+
+    async def send_message(self, channel_id: int, **kwargs):
+        """Send message to channel
+        Requires guild id and channel name
+
+        """
+        headers = {
+            "Authorization": f"Bot {self.CLIENT_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        response = await requests.post(
+            url=self.DISCORD_API_URI+f"/channels/{channel_id}/messages", json=kwargs, headers=headers
+        )
+        return response

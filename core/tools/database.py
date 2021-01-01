@@ -70,7 +70,15 @@ class Database:
             "moder_roles": json.loads(guild_data[18]),
             "react_channels": set(react_channels),
             "welcome": json.loads(guild_data[20]),
-            "auto_roles": json.loads(guild_data[21])
+            "auto_roles": json.loads(guild_data[21]),
+            'dict_server_stats': {
+                'all': 'Все',
+                'bots': 'Боты',
+                'roles': 'Роли',
+                'channels': 'Каналы',
+                'members': 'Участники',
+                "message": "Сообщения"
+            }
         }
 
         return dict_guild_data
