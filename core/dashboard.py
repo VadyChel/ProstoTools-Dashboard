@@ -102,14 +102,13 @@ async def dashboard(request, guild_id):
 					)
 				category_id = (await resp.json())["id"]
 
-			everyone_role_id = [role["id"] for role in datas_guild[1] if role["name"] == "@everyone"][0]
 			resp = await discord_api.create_guild_channel(
 				guild_id,
 				name=request.form['server_stats'][0].replace("\xa0", ""),
 				parent_id=category_id,
 				type=2,
 				permission_overwrites=[{
-					"id": everyone_role_id,
+					"id": guild_id,
 					"type": 0,
 					"deny": 0x00100000,
 					"allow": None
