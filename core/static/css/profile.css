@@ -136,19 +136,3 @@
 .card-button:hover a{
     color: #fff;
 }
-
-.card-bio-title{
-    color: #707070;
-    font-size: 22px;
-    letter-spacing: 1px;
-    display: block;
-    text-align: center;
-}
-
-.card-bio{
-    color: #707070;
-    font-size: 18px;
-    display: block;
-    text-align: center;
-    margin-bottom: 1%;
-}

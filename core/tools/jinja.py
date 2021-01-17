@@ -1,5 +1,3 @@
-import os
-
 import core.app
 from core.configs.config import Config
 from sanic.response import html

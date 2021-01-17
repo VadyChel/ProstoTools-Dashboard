@@ -199,7 +199,6 @@ async def profile(request):
 	user_datas = await discord_api.get_user_data(access_token)
 
 	sql_1 = """SELECT money FROM users WHERE user_id = %s AND user_id = %s"""
-	sql_2 = """SELECT bio FROM users WHERE user_id = %s AND user_id = %s"""
 	val = (user_datas[0]["id"], user_datas[0]["id"])
 
 	list_money = await Database.execute(sql_1, val)
@@ -210,8 +209,6 @@ async def profile(request):
 	for num in all_money:
 		money += int(num)
 
-	bio = (await Database.execute(sql_2, val, fetchone=True))[0]
-
 	return jinja.render(
 		"profile.html",
 		request,
@@ -219,7 +216,7 @@ async def profile(request):
 		avatar=request.ctx.session.get("user_avatar"),
 		login=request.ctx.session.get("user_state_login"),
 		user_name=request.ctx.session.get("user_name"),
-		user_data=[user_datas[0]["id"], len(user_datas[1]), money, bio],
+		user_data=[user_datas[0]["id"], len(user_datas[1]), money],
 	)
 
 
