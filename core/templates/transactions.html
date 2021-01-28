@@ -10,19 +10,24 @@ ProstoTools
 {% block body %}
 <div class="container">
     <div class="wrap d-flex justify-content-center">
-        <span class="transactions-title">Ваши транзакции</span>
-        {% for t in transactions %}
-            <div class="transaction">
-                <img src="{{ t['guild_icon'] }}" alt="" class="transaction-guild-img">
-                <div class="transaction-fields">
-                    <span class="transaction-field transaction-id">Id: {{ t['id'] }}</span>
-                    <span class="transaction-field transaction-to">Кому: {{ t['to'] }}</span>
-                    <span class="transaction-field transaction-from">От кого: {{ t['from'] }}</span>
-                    <span class="transaction-field transaction-time">Время: {{ t['time'] }}</span>
-                    <span class="transaction-field transaction-cash">Сумма: {{ t['cash'] }}</span>    
+        {% if transactions != [] %}
+            <span class="transactions-title">Ваши транзакции</span>
+            {% for t in transactions %}
+                <div class="transaction">
+                    <img src="{{ t['guild_icon'] }}" alt="" class="transaction-guild-img">
+                    <div class="transaction-fields">
+                        <span class="transaction-field transaction-id">Id: {{ t['id'] }}</span>
+                        <span class="transaction-field transaction-to">Кому: {{ t['to'] }}</span>
+                        <span class="transaction-field transaction-from">От кого: {{ t['from'] }}</span>
+                        <span class="transaction-field transaction-time">Время: {{ t['time'] }}</span>
+                        <span class="transaction-field transaction-cash">Сумма: {{ t['cash'] }}</span>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
+        {% if transactions == [] %}
+            <span style="font-size: 5em" class="transactions-title">У вас нету транзакций</span>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

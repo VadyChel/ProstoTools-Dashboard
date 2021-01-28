@@ -12,6 +12,11 @@
     color: #444;
 }
 
+.sidebar a:hover{
+    text-decoration: none;
+    color: #444;
+}
+
 .sidebar-btn{
     display: flex;
     align-items: center;

@@ -54,6 +54,11 @@
     color: #444;
 }
 
+.btn-guild-card a:hover{
+    text-decoration: none;
+    color: #444;
+}
+
 .not-servers{
     color: #444;
 }

@@ -1,7 +1,5 @@
 # Imports
 import json
-import mysql.connector
-
 from .configs import Config
 from .tools import ReceiveData, Jinja, Database, DiscordAPI
 from sanic import response, Blueprint
@@ -90,7 +88,6 @@ async def servers(request):
 	]  # Get the id client guilds in format string
 
 	try:
-
 		# Check if the user has more permissions on guild and check if bot on this guild
 		for guild in user_datas[1]:
 			bot = False
@@ -188,7 +185,6 @@ async def commands(request):
 
 @bp.route("/profile")
 async def profile(request):
-
 	# Check if user is logging
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)

@@ -1,17 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 * {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-a:focus{
-    border: none;
-    user-select: none;
-    outline: none;
-}
-
-a:hover{
-    text-decoration: none !important;
+    font-family: 'Roboto', sans-serif;
 }
 
 .page{
@@ -53,7 +45,12 @@ a:hover{
 
 .main-text a{
     text-decoration: none;
-    color: rgb(107, 107, 107);
+    color: #696969;
+}
+
+.main-text a:hover{
+    color: #696969;
+    text-decoration: none;
 }
 
 .header{
@@ -149,7 +146,12 @@ a:hover{
 
 .btn-header-login a{
     text-decoration: none;
-    color: dimgray;
+    color: #696969;
+}
+
+.btn-header-login a:hover{
+    color: #696969;
+    text-decoration: none;
 }
 
 .btn-header-login:hover{
@@ -180,7 +182,12 @@ a:hover{
 
 .btn-header-servers a{
     text-decoration: none;
-    color: dimgray;
+    color: #696969;
+}
+
+.btn-header-servers a:hover{
+    color: #696969;
+    text-decoration: none;
 }
 
 .btn-header-servers:hover{
@@ -257,6 +264,12 @@ a:hover{
     color: #444;
 }
 
+.btn-main-block-invite a:hover{
+    color: #444;
+    text-decoration: none;
+}
+
+
 .btn-main-block-invite:hover{
     transform: translateY(-10px);
 }
@@ -290,6 +303,7 @@ a:hover{
 
 .btn-main-block-servers-login:hover a{
     color: #fff;
+    text-decoration: none;
 }
 
 .login{
