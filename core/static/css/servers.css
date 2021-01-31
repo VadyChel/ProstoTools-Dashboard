@@ -87,4 +87,5 @@
 .not-servers a:hover{
     background-color: #555;
     color: #fff;
+    text-decoration: none;
 }
