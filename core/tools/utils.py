@@ -3,8 +3,8 @@ from core.configs.config import Config
 
 # Create new class Utils
 class Utils:
-	async def dashboard_403_response(self, request, jinja, category: str, guild_data: list):
-		return jinja.render(
+	async def dashboard_403_response(self, request, category: str, guild_data: list):
+		return request.app.jinja.render(
 			"dashboard.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,

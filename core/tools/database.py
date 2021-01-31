@@ -5,9 +5,8 @@ from core.configs.config import Config
 
 
 class Database:
-    @classmethod
-    async def prepare(cls):
-        cls.pool = await aiomysql.create_pool(
+    async def prepare(self):
+        self.pool = await aiomysql.create_pool(
             host=Config.DB_HOST,
             port=3306,
             user=Config.DB_USER,
@@ -15,14 +14,13 @@ class Database:
             db=Config.DB_DATABASE
         )
 
-    @classmethod
-    async def get_db_guild_data(cls, guild_id: int) -> dict:
+    async def get_db_guild_data(self, guild_id: int) -> dict:
         """Return a guild settings from database
         Requires a guild id
 
         """
 
-        async with cls.pool.acquire() as conn:
+        async with self.pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(
                     """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s""",
@@ -68,11 +66,10 @@ class Database:
 
         return dict_guild_data
 
-    @classmethod
     async def execute(
-            cls, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
+            self, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
     ) -> list:
-        async with cls.pool.acquire() as conn:
+        async with self.pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(query, val)
                 await conn.commit()

@@ -4,7 +4,7 @@ from .configs.config import Config
 from .dashboard import bp as dashboard
 from .exceptions import bp as exceptions
 from .views import bp as views
-from .tools import Database
+from .tools import Database, Utils, Jinja, DiscordAPI, ReceiveData
 from sanic import Sanic
 from sanic_session import Session, MemcacheSessionInterface
 
@@ -22,7 +22,12 @@ async def prepare_db(app, loop):
 	Session(app, interface=MemcacheSessionInterface(
 		aiomcache.Client("127.0.0.1", 11211, loop=loop)
 	))
-	await Database.prepare()
+	app.database = Database()
+	app.utils = Utils()
+	app.jinja = Jinja()
+	app.discord_api = DiscordAPI()
+	app.get_api_data = ReceiveData().get_data
+	await app.database.prepare()
 
 
 # Run the app

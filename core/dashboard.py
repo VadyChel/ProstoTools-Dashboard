@@ -1,34 +1,28 @@
 import json
 
 from .configs import Config
-from .tools import Jinja, ReceiveData, DiscordAPI, Database, Utils
 from sanic import response, Blueprint
 
 
 bp = Blueprint('dashboard')
-jinja = Jinja()
-utils = Utils()
-get_api_data = ReceiveData().get_data
-discord_api = DiscordAPI()
 
 
 @bp.route("/dashboard/<guild_id:int>", methods=["POST", "GET"])
 async def dashboard(request, guild_id):
-
 	# Check if user is logging
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
 
 	# Get the guilds, roles and channels
-	datas_guild = await discord_api.get_guild_channel_roles(guild_id)
+	datas_guild = await request.app.discord_api.get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session.get("user_guilds")
-	guild_data = await Database.get_db_guild_data(guild_id)
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
 	new_idea_channel = 0
 
 	if request.method == "POST":
 		# Check if prefix is incorect introduced
 		if len(request.form["new_prefix"]) < 1:
-			return jinja.render(
+			return request.app.jinja.render(
 				"dashboard.html",
 				request,
 				url=Config.DISCORD_LOGIN_URI,
@@ -44,7 +38,7 @@ async def dashboard(request, guild_id):
 				alert=["danger", "Укажите префикс"],
 			)
 		elif len(request.form["new_prefix"][0]) > 3:
-			return jinja.render(
+			return request.app.jinja.render(
 				"dashboard.html",
 				request,
 				url=Config.DISCORD_LOGIN_URI,
@@ -76,7 +70,7 @@ async def dashboard(request, guild_id):
 				server_stats = guild_data['server_stats']
 				try:
 					deleted_channel = server_stats.pop(stats_dict["\xa0"+item])
-					await discord_api.del_channel(deleted_channel)
+					await request.app.discord_api.del_channel(deleted_channel)
 				except:
 					pass
 		else:
@@ -92,17 +86,17 @@ async def dashboard(request, guild_id):
 					break
 
 			if category_id is None:
-				resp = await discord_api.create_guild_channel(
+				resp = await request.app.discord_api.create_guild_channel(
 					guild_id, name="Статистика", type=4, position=0
 				)
 				if resp.status == 403:
-					return utils.dashboard_403_response(
-						request, jinja, "global",
+					return request.app.utils.dashboard_403_response(
+						request, "global",
 						[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild]
 					)
 				category_id = (await resp.json())["id"]
 
-			resp = await discord_api.create_guild_channel(
+			resp = await request.app.discord_api.create_guild_channel(
 				guild_id,
 				name=request.form['server_stats'][0].replace("\xa0", ""),
 				parent_id=category_id,
@@ -116,8 +110,8 @@ async def dashboard(request, guild_id):
 			)
 
 			if resp.status == 403:
-				return utils.dashboard_403_response(
-					request, jinja, "global",
+				return request.app.utils.dashboard_403_response(
+					request, "global",
 					[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild]
 				)
 
@@ -165,10 +159,10 @@ async def dashboard(request, guild_id):
 			json.dumps(server_stats),
 			int(guild_id),
 		)
-		await Database.execute(sql, val)
+		await request.app.database.execute(sql, val)
 
-	guild_data = await Database.get_db_guild_data(guild_id)
-	return jinja.render(
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
+	return request.app.jinja.render(
 		"dashboard.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -191,11 +185,11 @@ async def dashboard_moderation(request, guild_id):
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	guild_data = await Database.get_db_guild_data(guild_id)
-	datas_guild = await discord_api.get_guild_channel_roles(guild_id)
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
+	datas_guild = await request.app.discord_api.get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session.get("user_guilds")
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"dashboard.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -218,11 +212,11 @@ async def dashboard_economy(request, guild_id):
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	guild_data = await Database.get_db_guild_data(guild_id)
-	datas_guild = await discord_api.get_guild_channel_roles(guild_id)
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
+	datas_guild = await request.app.discord_api.get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session.get("user_guilds")
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"dashboard.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -245,11 +239,11 @@ async def dashboard_levels(request, guild_id):
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	guild_data = await Database.get_db_guild_data(guild_id)
-	datas_guild = await discord_api.get_guild_channel_roles(guild_id)
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
+	datas_guild = await request.app.discord_api.get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session.get("user_guilds")
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"dashboard.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -272,11 +266,11 @@ async def dashboard_welcome(request, guild_id):
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	guild_data = await Database.get_db_guild_data(guild_id)
-	datas_guild = await discord_api.get_guild_channel_roles(guild_id)
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
+	datas_guild = await request.app.discord_api.get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session.get("user_guilds")
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"dashboard.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -299,11 +293,11 @@ async def dashboard_utils(request, guild_id):
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
 
-	guild_data = await Database.get_db_guild_data(guild_id)
-	datas_guild = await discord_api.get_guild_channel_roles(guild_id)
+	guild_data = await request.app.database.get_db_guild_data(guild_id)
+	datas_guild = await request.app.discord_api.get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session.get("user_guilds")
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"dashboard.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,

@@ -1,11 +1,8 @@
 from .configs import Config
-from .tools import Jinja
-
 from sanic.exceptions import NotFound, ServerError
 from sanic import Blueprint
 
 bp = Blueprint('exceptions')
-jinja = Jinja()
 
 
 @bp.exception(NotFound)
@@ -16,7 +13,7 @@ async def not_found_error(request, exception):
 	"""
 
 	try:
-		return jinja.render(
+		return request.app.jinja.render(
 			"error_404.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -25,7 +22,9 @@ async def not_found_error(request, exception):
 			user_name=request.ctx.session.get("user_name"),
 		)
 	except:
-		return jinja.render("error_404.html", request, url=Config.DISCORD_LOGIN_URI)
+		return request.app.jinja.render(
+			"error_404.html", request, url=Config.DISCORD_LOGIN_URI
+		)
 
 
 @bp.exception(ServerError)
@@ -36,7 +35,7 @@ async def internal_error(request, exception):
 	"""
 
 	try:
-		return jinja.render(
+		return request.app.jinja.render(
 			"error_500.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -46,6 +45,6 @@ async def internal_error(request, exception):
 			error=exception,
 		)
 	except:
-		return jinja.render(
+		return request.app.jinja.render(
 			"error_500.html", request, url=Config.DISCORD_LOGIN_URI, error=exception
 		)

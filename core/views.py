@@ -1,24 +1,20 @@
 # Imports
 import json
 from .configs import Config
-from .tools import ReceiveData, Jinja, Database, DiscordAPI
 from sanic import response, Blueprint
 
 bp = Blueprint('main_routes')
-jinja = Jinja()
-get_api_data = ReceiveData().get_data
-discord_api = DiscordAPI()
 
 
 @bp.route("/")
 async def index(request):
-	client = await get_api_data()
-	amout_used_commands = (await Database.execute(
+	client = await request.app.get_api_data()
+	amout_used_commands = (await request.app.database.execute(
 		"""SELECT count FROM bot_stats WHERE entity = 'all commands'"""
 	))[::-1][0]
 
 	try:
-		return jinja.render(
+		return request.app.jinja.render(
 			"index.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -28,7 +24,7 @@ async def index(request):
 			bot_stats=[len(client.guilds), len(client.users), amout_used_commands],
 		)
 	except:
-		return jinja.render(
+		return request.app.jinja.render(
 			"index.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -39,7 +35,7 @@ async def index(request):
 @bp.route("/servers")
 async def servers(request):
 	code = request.args.get("code")  # Get code from url
-	access_token = await discord_api.get_access_token(code)  # Get an user access token
+	access_token = await request.app.discord_api.get_access_token(code)  # Get an user access token
 
 	if code is not None:  # If code is not None, it redirects to the servers page
 		# Work with session
@@ -48,8 +44,8 @@ async def servers(request):
 		return response.redirect("/servers")
 
 	access_token = request.ctx.session.get("access_token")
-	user_datas = await discord_api.get_user_data(access_token)
-	client = await get_api_data()
+	user_datas = await request.app.discord_api.get_user_data(access_token)
+	client = await request.app.get_api_data()
 
 	# If length of username the biggest than 16, it is shorting the username and it is unating a username and discriminator
 	if len(user_datas[0]["username"]) > 16:
@@ -153,7 +149,7 @@ async def servers(request):
 	else:
 		request.ctx.session["user_guilds"] = session_guild_datas
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"servers.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -166,9 +162,9 @@ async def servers(request):
 
 @bp.route("/commands")
 async def commands(request):
-	client = await get_api_data()
+	client = await request.app.get_api_data()
 	try:
-		return jinja.render(
+		return request.app.jinja.render(
 			"commands.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -178,7 +174,7 @@ async def commands(request):
 			client=client,
 		)
 	except:
-		return jinja.render(
+		return request.app.jinja.render(
 			"commands.html", request, url=Config.DISCORD_LOGIN_URI, client=client
 		)
 
@@ -192,12 +188,12 @@ async def profile(request):
 	access_token = request.ctx.session.get(
 		"access_token"
 	)  # Get the user access token form request.ctx.session
-	user_datas = await discord_api.get_user_data(access_token)
+	user_datas = await request.app.discord_api.get_user_data(access_token)
 
 	sql_1 = """SELECT money FROM users WHERE user_id = %s AND user_id = %s"""
 	val = (user_datas[0]["id"], user_datas[0]["id"])
 
-	list_money = await Database.execute(sql_1, val)
+	list_money = await request.app.database.execute(sql_1, val)
 	money = 0
 
 	# Get all money from all user guilds
@@ -205,7 +201,7 @@ async def profile(request):
 	for num in all_money:
 		money += int(num)
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"profile.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -218,9 +214,9 @@ async def profile(request):
 
 @bp.route("/stats")
 async def stats(request):
-	client = await get_api_data()
+	client = await request.app.get_api_data()
 	try:
-		return jinja.render(
+		return request.app.jinja.render(
 			"stats.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -230,7 +226,7 @@ async def stats(request):
 			bot_stats=[len(client.channels), len(client.guilds), len(client.users)],
 		)
 	except:
-		return jinja.render(
+		return request.app.jinja.render(
 			"stats.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -240,7 +236,7 @@ async def stats(request):
 
 @bp.route("/transactions")
 async def transactions(request):
-	client = await get_api_data()
+	client = await request.app.get_api_data()
 	# Check if user is logging
 	if not request.ctx.session.get("user_state_login"):
 		return response.redirect(Config.DISCORD_LOGIN_URI)
@@ -248,12 +244,12 @@ async def transactions(request):
 	access_token = request.ctx.session.get(
 		"access_token"
 	)  # Get the user access token form session
-	user_datas = await discord_api.get_user_data(access_token)
+	user_datas = await request.app.discord_api.get_user_data(access_token)
 
 	sql = """SELECT transantions FROM users WHERE user_id = %s AND user_id = %s"""
 	val = (user_datas[0]["id"], user_datas[0]["id"])
 
-	data = await Database.execute(sql, val)
+	data = await request.app.database.execute(sql, val)
 	transactions = [
 		t
 		for transactions in data
@@ -272,7 +268,7 @@ async def transactions(request):
 			guild_icon = "https://cdn.discordapp.com/attachments/717783820308316272/743448353672790136/1.png"
 		t.update({"guild_icon": guild_icon})
 
-	return jinja.render(
+	return request.app.jinja.render(
 		"transactions.html",
 		request,
 		url=Config.DISCORD_LOGIN_URI,
@@ -285,8 +281,8 @@ async def transactions(request):
 
 @bp.route("/leaderboard")
 async def leaderboard(request):
-	client = await get_api_data()
-	data = await Database.execute(
+	client = await request.app.get_api_data()
+	data = await request.app.database.execute(
 		"""SELECT money, reputation, exp, level, coins, user_id FROM users ORDER BY exp DESC LIMIT 100"""
 	)
 	users = {}
@@ -309,7 +305,7 @@ async def leaderboard(request):
 
 	users_list = sorted(users, key=lambda user: users[user]["exp"], reverse=True)
 	try:
-		return jinja.render(
+		return request.app.jinja.render(
 			"leaderboard.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
@@ -320,7 +316,7 @@ async def leaderboard(request):
 			users_list=users_list,
 		)
 	except:
-		return jinja.render(
+		return request.app.jinja.render(
 			"leaderboard.html",
 			request,
 			url=Config.DISCORD_LOGIN_URI,
