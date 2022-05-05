@@ -7,4 +7,5 @@ Following pages didn't compete:
 - Dashboard page
 
 *If you want to resume dashboard development you can fork this repository*
+
 *If you want to run project on your computer you can do this with many attepmts and errors 🙃*
