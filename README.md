@@ -1,7 +1,9 @@
-# Dashboard of [ProstoTools](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot) discord bot
+# Dashboard of [ProstoTools](https://github.com/VadyChel/ProstoTools) discord bot
 
-> - **Not finished**
-> - **With a lot of poor code**
-> - **But own**
+Firstly a dashboard built with Flask, but later it was rewritten with Sanic.
+The dashboard development was completed long ago.
 
-*If you want to continue this project fork the repository*
+Following pages didn't compete:
+- Dashboard page
+
+*If you want to resume dashboard development you can fork this repository*
